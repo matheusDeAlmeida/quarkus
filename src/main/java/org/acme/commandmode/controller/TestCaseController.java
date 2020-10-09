@@ -17,51 +17,51 @@ import org.jboss.logging.Logger;
 import org.jboss.resteasy.annotations.jaxrs.PathParam;
 
 import org.acme.commandmode.model.Feature;
-import org.acme.commandmode.model.Project;
-
+import org.acme.commandmode.model.TestCase;
 
 @ApplicationScoped
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Path("/")
-public class FeatureController {
-    private static final Logger LOG = Logger.getLogger(FeatureController.class.getName());
+public class TestCaseController {
+    private static final Logger LOG = Logger.getLogger(TestCaseController.class.getName());
 
     @Inject
     EntityManager em;
 
     @GET
-    @Path("project/{id}/features")
-    public Feature[] getDefault(@PathParam ("id") Integer projectId) {
-        return em.createNamedQuery("Features.findByProject", Feature.class)
-        .setParameter("projectId", projectId)
-        .getResultList().toArray(new Feature[0]);
+    @Path("feature/{id}/testcases")
+    public TestCase[] getDefault(@PathParam ("id") Integer featureId) {
+        return em.createNamedQuery("TestCases.findByFeature", TestCase.class)
+        .setParameter("featureId", featureId)
+        .getResultList().toArray(new TestCase[0]);
     }
 
     @POST
     @Transactional
-    @Path("project/{id}/feature")
-    public Response createDefault(@PathParam ("id") Integer projectId, Feature feature) {
-        Project project = Project.findById(projectId);
-        if (project == null) {
-            throw new WebApplicationException("Project not found.", 404);
-        } else if (feature.getId() != null) {
+    @Path("feature/{id}/testcase")
+    public Response createDefault(@PathParam ("id") Integer featureId, TestCase testCase) {
+        Feature feature = Feature.findById(featureId);
+        if (feature == null) {
+            throw new WebApplicationException("Feature not found.", 404);
+        } else if(testCase.getId() != null) {
             throw new WebApplicationException("Id was invalidly set on request.", 422);
         }
-        feature.setProject(project);
-        LOG.debugv("Create {0}{1}", feature.getDescription(), feature.getProject());
-        em.persist(feature);
-        return Response.ok(feature).status(201).build();
+        testCase.setFeature(feature);
+        LOG.debugv("Create {0}", testCase.getDescription());
+        em.persist(testCase);
+        return Response.ok(testCase).status(201).build();
     }
 
     @DELETE
-    @Path("feature/{id}")
+    @Path("testcase/{id}")
     public Response deleteDefault(@PathParam ("id") Integer id) {
-        Feature feature = Feature.findById(id);
-        if (feature == null) {
+        TestCase testCase = TestCase.findById(id);
+        if (testCase == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        feature.delete();
+        testCase.delete();
         return Response.status(Response.Status.OK).build();
     }
+    
 }

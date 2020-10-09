@@ -10,10 +10,19 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import javax.persistence.NamedQuery;
 @Entity
+@NamedQuery(name = "Bug.findByInputData",
+    query = "SELECT b FROM Bug b where b.inputData.id LIKE :inputDataId"
+)
 public class Bug {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +33,9 @@ public class Bug {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "inputData_id", referencedColumnName = "id")
     @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
+    @JsonIdentityReference(alwaysAsId=true)
+    @JsonProperty("inputData_id")
     private InputData inputData;
 
     public Bug() {

@@ -10,15 +10,23 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-// import javax.persistence.JoinTable;
-// import javax.persistence.ManyToMany;
+import javax.persistence.NamedQuery;
 import javax.persistence.ManyToOne;
 
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 @Entity
-public class TestCase {
+@NamedQuery(name = "TestCases.findByFeature",
+    query = "SELECT t FROM TestCase t where t.feature.id LIKE :featureId"
+)
+public class TestCase extends PanacheEntityBase{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -28,12 +36,15 @@ public class TestCase {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "feature_id", referencedColumnName = "id")
     @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="id")
+    @JsonIdentityReference(alwaysAsId=true)
+    @JsonProperty("feature_id")
     private Feature feature; 
 
     // @ManyToMany(cascade = CascadeType.ALL)
     // @JoinTable(name = "test_case_plataforma",
         // joinColumns = @JoinColumn(name = "test_case_id", referencedColumnName = "id"),
-        // inverseJoinColumns = @JoinColumn(name = "plataforma_id", referencedColumnName = "id"))
+        // inverseJoinColumns = @JoinColumn(name = "plataforma_id", referencedColumnName = "id")
     // private Set<Plataforma> plataformas;
 
     public TestCase() {

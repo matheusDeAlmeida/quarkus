@@ -12,6 +12,7 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 
 @Entity
 @NamedQuery(name = "Projects.findAll", query = "SELECT p FROM Project p")
+@NamedQuery(name = "Projects.findById", query = "SELECT p FROM Project p where p.id LIKE :projectId")
 public class Project extends PanacheEntityBase {
 
     @Id

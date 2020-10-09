@@ -3,6 +3,7 @@ package org.acme.commandmode.controller;
 import javax.enterprise.context.ApplicationScoped;
 import java.util.List;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.Produces;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
@@ -36,7 +37,7 @@ public class ProjectController {
         return em.createNamedQuery("Projects.findAll", Project.class)
         .getResultList().toArray(new Project[0]);
     }
-        
+   
     @POST
     @Transactional
     @Path("project")
@@ -47,5 +48,16 @@ public class ProjectController {
         LOG.debugv("Create {0}", project.getDescription());
         em.persist(project);
         return Response.ok(project).status(201).build();
+    }
+
+    @DELETE
+    @Path("project/{id}")
+    public Response deleteDefault(@PathParam ("id") Integer id) {
+        Project project = Project.findById(id);
+        if (project == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        project.delete();
+        return Response.status(Response.Status.OK).build();
     }
 }
